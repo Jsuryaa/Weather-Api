@@ -5,7 +5,7 @@ container.setAttribute("class","container");
 row.setAttribute("class","row");
 head.setAttribute("id", "title");
 head.setAttribute("class", "text-center");
-head.innerText = "Check your Weather in All Country";
+head.innerText = "Check a Weather in All Country";
 
 async function country(){
     const response = await fetch("https://restcountries.com/v3.1/all");
