@@ -1,74 +1,52 @@
-// Fetching data about all countries from the specified API
-var fet = fetch("https://restcountries.com/v3.1/all")
-  .then((response) => response.json())
-  .then((data) => {
-    // Mapping through the retrieved data
-    data.map((value) => {
-      // Creating a new object using the spread operator
-      var spreadOperator = {
-        ...value,
-        name: value.name.common,
-        flag: value.flags.png,
-        code: value.cioc,
-        capital: value.capital,
-        region: value.region,
-        population: value.population,
-        latitude: value.latlng[0],
-        longitude: value.latlng[1],
-      };
-      // Calling the createcountry function with the new object as an argument
-      createcountry(spreadOperator);
-    });
-  });
+let container = document.createElement("div");
+let row = document.createElement("div");
+let head = document.createElement("h1")
+container.setAttribute("class","container");
+row.setAttribute("class","row");
+head.setAttribute("id", "title");
+head.setAttribute("class", "text-center");
+head.innerText = "Check your Weather in All Country";
 
-// Function to create a country card using the provided data
-function createcountry({
-  name,
-  flag,
-  code,
-  capital,
-  region,
-  population,
-  latitude,
-  longitude,
-}) {
-  // Appending HTML content to the body, creating a card for each country
-  document.body.innerHTML += ` <div class="container">
-        <div class="card">
-          <h1 id="title" class="text-center">${name}</h1>
-          <img src="${flag}" class="flag" alt="${name}'Flag image">
-          <div class="card-body car">
-            <p><span>Population :</span>${population}</p>
-            <p><span>Captial :</span> ${capital}</p>
-            <p><span>Region :</span> ${region}</p>
-            <p><span>Country Code :</span>${code}</p>
-            <!-- Clicking this button triggers the block function with country's latitude, longitude, and name -->
-            <a href="#" class="btn btn-primary" onclick=(block(${latitude},${longitude},${name})) >Click for Weather</a>
-            <div id=${name}></div>
+async function country(){
+    const response = await fetch("https://restcountries.com/v3.1/all");
+    const data = await response.json();
+    row.innerHTML="";
+
+    for(let i = 0; i<data.length;i++){
+        row.innerHTML+=` 
+        
+        <div class="col-sm-6 col-md-4 col-lg-4 col-xl-4 bg-light g-5">
+        <div class="card h-100 w-auto" style="width: 18rem;" id="card">
+          <div class="card-header text-center" id="country-name">${data[i].name.common}</div>
+            <img src="${data[i].flags.svg}" class="card-img-top" alt='country-cards'>
+            <div class="card-body text-center">
+            <div class="card-text"><b><i>Region : </i></b>${data[i].region}</div>
+            <div class="card-text"><b><i>Country-code : </i></b>${data[i].altSpellings[0]}</div>
+            <div class="card-text"><b><i>Capital : </i></b>${data[i].capital}</div>
+            <div class="card-text"><b><i>Population : </i></b>${data[i].population}</div>
+            <div id="${data[i].name.common}"></div>
+              <div class="card-footer d-flex justify-content-center">
+                <button class="btn btn-danger" onClick="weather(${data[i].latlng[0]},${data[i].latlng[1]},'${data[i].name.common}')">click for weather</button>
+              </div>
           </div>
-        </div>
-      </div>
-    `;
+        </div>`;
+    }
 }
 
-// Function to fetch weather information using latitude and longitude
-function block(lat, lng, name) {
-  // Creating the Weather API URL with the provided latitude and longitude
-  var WAPI = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=06e423ec0af839c485470951f60c3f6b`;
+async function weather(lat, lon, id){
+    let weatherreport = document.getElementById(id);
+    const response1 = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=ff7e49eb4fd19463836219b0feb2529f&units=metric`);
+    const data1 = await response1.json();
 
-  // Fetching weather data from the Weather API
-  fetch(WAPI)
-    .then((response) => response.json())
-    .then((data) => {
-      // Displaying an alert with the weather information for the selected country
-      alert(`
-        For ${name.id}  
-        Current Humidity is ${data.main.humidity}
-        Current Pressure is ${data.main.pressure}
-        Current Temperature is ${data.main.temp}
-      `);
-    });
+    weatherreport.innerHTML=`<div class="card-text"><b><i>Weather : </i></b>${data1.weather[0].main}</div>
+    <div class="card-text"><b><i>Temperature : </i></b>${data1.main.temp} &#8451;</div>
+
+  `;
+
+
 }
 
-// Preventing default behavior for click events (not clear why this is added here)
-document.addEventListener("click", (event) => event.preventDefault());
+document.body.appendChild(container);
+container.append(head, row);
+
+setTimeout(country, 1000);
